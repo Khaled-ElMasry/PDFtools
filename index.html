@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Offline PDF Tools — extract pages as images, compile images into PDF, and edit PDF documents directly in your browser. No uploads, no server.">
+    <title>PDF Tools — Offline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="pt-container" id="pt-container">
+
+        <!-- Header -->
+        <header class="pt-header">
+            <h1 class="pt-title">PDF Tools</h1>
+            <p class="pt-subtitle">Offline PDF extractors and builders — runs entirely in your browser.</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="pt-tabs" role="tablist" aria-label="PDF tool tabs">
+            <button class="pt-tab-btn is-active" id="pt-tab-btn-1" role="tab" aria-selected="true"  aria-controls="pt-panel-1" tabindex="0">PDF → Images</button>
+            <button class="pt-tab-btn"           id="pt-tab-btn-2" role="tab" aria-selected="false" aria-controls="pt-panel-2" tabindex="-1">Images → PDF</button>
+            <button class="pt-tab-btn"           id="pt-tab-btn-3" role="tab" aria-selected="false" aria-controls="pt-panel-3" tabindex="-1">Edit / Extract PDF</button>
+        </nav>
+
+        <!-- ── TAB 1: PDF → Images ───────────────────────────────── -->
+        <section class="pt-tab-panel is-active" id="pt-panel-1" role="tabpanel" aria-labelledby="pt-tab-btn-1">
+
+            <div class="pt-dropzone" id="pt-dz-1" role="button" tabindex="0"
+                 aria-label="Drop zone: drag and drop a PDF file here, or press Enter to browse">
+                <span class="pt-dz-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </span>
+                <div class="pt-dz-text" id="pt-dz-1-text">Drag &amp; Drop PDF file here</div>
+                <div class="pt-dz-sub" id="pt-dz-1-sub">Or press Enter / click to select a local PDF file</div>
+                <input type="file" id="pt-input-1" accept="application/pdf" style="display:none" aria-hidden="true">
+            </div>
+
+            <div class="pt-options" id="pt-options-1" style="display:none">
+                <div class="pt-section-label">Output Quality</div>
+                <div class="pt-chip-group" id="pt-quality-chips" role="radiogroup" aria-label="Select output quality scale">
+                    <button class="pt-chip" data-scale="1"   role="radio" aria-checked="false">1× Web</button>
+                    <button class="pt-chip is-active" data-scale="1.5" role="radio" aria-checked="true">1.5× Balanced</button>
+                    <button class="pt-chip" data-scale="2"   role="radio" aria-checked="false">2× High</button>
+                    <button class="pt-chip" data-scale="3"   role="radio" aria-checked="false">3× Print</button>
+                </div>
+                <button class="pt-action-btn" id="pt-convert-btn-1" aria-label="Render PDF pages to PNG images">
+                    Render PDF to PNG Images
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div class="pt-progress" id="pt-progress-1" aria-live="polite" aria-label="Conversion progress" style="display:none">
+                <div class="pt-progress-track"><div class="pt-progress-fill" id="pt-progress-fill-1"></div></div>
+                <div class="pt-progress-text" id="pt-progress-text-1">Preparing pages…</div>
+            </div>
+
+            <!-- Grid wrapper -->
+            <div id="pt-grid-wrapper-1" style="display:none">
+                <div class="pt-grid-header">
+                    <div class="pt-section-label">Rendered Pages</div>
+                    <div class="pt-grid-actions">
+                        <button class="pt-ghost-btn" id="pt-select-all-1">Select All</button>
+                        <button class="pt-ghost-btn" id="pt-deselect-all-1">Deselect All</button>
+                    </div>
+                </div>
+                <div class="pt-range-row">
+                    <input type="text" id="pt-range-input-1" class="pt-input" placeholder="e.g. 1-5, 8, 11-13" aria-label="Page range filter">
+                    <button class="pt-action-btn pt-action-btn--sm" id="pt-range-btn-1">Apply Range</button>
+                </div>
+                <div class="pt-grid" id="pt-grid-1" role="list"></div>
+                <div class="pt-row-actions">
+                    <button class="pt-action-btn" id="pt-zip-btn-1" style="display:none" aria-label="Download all selected pages as ZIP archive">
+                        Download Pages as ZIP
+                    </button>
+                    <button class="pt-action-btn pt-action-btn--danger" id="pt-reset-btn-1" style="display:none" aria-label="Clear and start over">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── TAB 2: Images → PDF ───────────────────────────────── -->
+        <section class="pt-tab-panel" id="pt-panel-2" role="tabpanel" aria-labelledby="pt-tab-btn-2">
+
+            <div class="pt-dropzone" id="pt-dz-2" role="button" tabindex="0"
+                 aria-label="Drop zone: drag and drop image files here, or press Enter to browse">
+                <span class="pt-dz-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                </span>
+                <div class="pt-dz-text" id="pt-dz-2-text">Drag &amp; Drop images here</div>
+                <div class="pt-dz-sub">Or press Enter / click to select PNG/JPEG files</div>
+                <input type="file" id="pt-input-2" accept="image/png,image/jpeg,image/jpg,image/webp" multiple style="display:none" aria-hidden="true">
+            </div>
+
+            <!-- File list -->
+            <div class="pt-file-list" id="pt-file-list-2" style="display:none" aria-label="Selected images list" aria-live="polite"></div>
+
+            <!-- Options -->
+            <div id="pt-options-2" style="display:none">
+                <div class="pt-two-col">
+                    <div>
+                        <div class="pt-section-label">Orientation</div>
+                        <div class="pt-chip-group" id="pt-orient-chips" role="radiogroup" aria-label="Page orientation">
+                            <button class="pt-chip is-active" data-val="p" role="radio" aria-checked="true">Portrait</button>
+                            <button class="pt-chip" data-val="l" role="radio" aria-checked="false">Landscape</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pt-section-label">Page Margins</div>
+                        <div class="pt-chip-group" id="pt-margin-chips" role="radiogroup" aria-label="Page margins">
+                            <button class="pt-chip is-active" data-val="none" role="radio" aria-checked="true">None</button>
+                            <button class="pt-chip" data-val="small" role="radio" aria-checked="false">Small</button>
+                            <button class="pt-chip" data-val="medium" role="radio" aria-checked="false">Medium</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live preview -->
+                <div id="pt-preview-container" style="display:none">
+                    <div class="pt-preview-header">
+                        <div class="pt-section-label">
+                            Live Preview
+                            <span id="pt-preview-counter" class="pt-preview-badge">(Page 1 of 1)</span>
+                        </div>
+                        <div class="pt-preview-nav">
+                            <button id="pt-preview-prev" class="pt-ghost-btn" aria-label="Previous page">&#9664; Prev</button>
+                            <button id="pt-preview-next" class="pt-ghost-btn" aria-label="Next page">Next &#9654;</button>
+                        </div>
+                    </div>
+                    <div id="pt-preview-box" class="pt-preview-box" aria-label="Page preview">
+                        <img id="pt-preview-img" alt="Preview of current page">
+                    </div>
+                </div>
+
+                <div class="pt-section-label">Output Filename</div>
+                <input type="text" id="pt-output-name" class="pt-input" value="compiled_document" placeholder="Output filename (without .pdf)" aria-label="Output PDF filename">
+
+                <div class="pt-row-actions">
+                    <button class="pt-action-btn" id="pt-compile-btn" style="flex:2" aria-label="Compile images into PDF">
+                        Compile Images into PDF
+                    </button>
+                    <button class="pt-action-btn pt-action-btn--danger" id="pt-reset-btn-2" style="display:none;flex:1" aria-label="Clear all images">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-progress" id="pt-progress-2" aria-live="polite" style="display:none">
+                <div class="pt-progress-track"><div class="pt-progress-fill" id="pt-progress-fill-2"></div></div>
+                <div class="pt-progress-text" id="pt-progress-text-2">Generating PDF…</div>
+            </div>
+        </section>
+
+        <!-- ── TAB 3: Edit / Extract PDF ─────────────────────────── -->
+        <section class="pt-tab-panel" id="pt-panel-3" role="tabpanel" aria-labelledby="pt-tab-btn-3">
+
+            <div class="pt-dropzone" id="pt-dz-3" role="button" tabindex="0"
+                 aria-label="Drop zone: drag and drop a PDF file to edit, or press Enter to browse">
+                <span class="pt-dz-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <polyline points="3 3 3 8 8 8"/>
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                        <polyline points="16 16 21 16 21 21"/>
+                    </svg>
+                </span>
+                <div class="pt-dz-text" id="pt-dz-3-text">Drag &amp; Drop original PDF here</div>
+                <div class="pt-dz-sub" id="pt-dz-3-sub">Or press Enter / click to select a local PDF file</div>
+                <input type="file" id="pt-input-3" accept="application/pdf" style="display:none" aria-hidden="true">
+            </div>
+
+            <div class="pt-progress" id="pt-progress-3" aria-live="polite" style="display:none">
+                <div class="pt-progress-track"><div class="pt-progress-fill" id="pt-progress-fill-3"></div></div>
+                <div class="pt-progress-text" id="pt-progress-text-3">Reading document structure…</div>
+            </div>
+
+            <!-- Grid wrapper -->
+            <div id="pt-grid-wrapper-3" style="display:none">
+                <div class="pt-grid-header">
+                    <div class="pt-section-label">Document Pages</div>
+                    <div class="pt-grid-actions">
+                        <button class="pt-ghost-btn" id="pt-select-all-3">Select All</button>
+                        <button class="pt-ghost-btn" id="pt-deselect-all-3">Deselect All</button>
+                    </div>
+                </div>
+                <div class="pt-range-row">
+                    <input type="text" id="pt-range-input-3" class="pt-input" placeholder="e.g. 1-5, 8, 11-13" aria-label="Page range filter">
+                    <button class="pt-action-btn pt-action-btn--sm" id="pt-range-btn-3">Apply Range</button>
+                </div>
+                <div class="pt-grid" id="pt-grid-3" role="list"></div>
+                <div class="pt-row-actions">
+                    <button class="pt-action-btn" id="pt-save-btn-3" style="display:none" aria-label="Save edited PDF">
+                        Save PDF
+                    </button>
+                    <button class="pt-action-btn pt-action-btn--danger" id="pt-reset-btn-3" style="display:none" aria-label="Clear and start over">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- /.pt-container -->
+
+    <!-- Lightbox -->
+    <div id="pt-lightbox" role="dialog" aria-modal="true" aria-label="Page preview lightbox" style="display:none">
+        <button id="pt-lb-close" aria-label="Close lightbox">&times;</button>
+        <div id="pt-lb-counter" aria-live="polite"></div>
+        <button id="pt-lb-prev" class="pt-lb-btn" aria-label="Previous page">&#10094;</button>
+        <img id="pt-lb-img" src="" alt="Full-size page preview">
+        <button id="pt-lb-next" class="pt-lb-btn" aria-label="Next page">&#10095;</button>
+    </div>
+
+    <!-- Toast container -->
+    <div id="pt-toasts" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Local library bundles -->
+    <script src="pdf.min.js"></script>
+    <script src="jspdf.umd.min.js"></script>
+    <script src="pdf-lib.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
