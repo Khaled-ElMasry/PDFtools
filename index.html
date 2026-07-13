@@ -48,13 +48,16 @@
 
             <div class="pt-options" id="pt-options-1" style="display:none">
                 <div class="pt-section-label">Output Quality</div>
-                <div class="pt-chip-group" id="pt-quality-chips" role="radiogroup" aria-label="Select output quality scale">
-                    <button class="pt-chip" data-scale="1"   role="radio" aria-checked="false">1× Web</button>
-                    <button class="pt-chip is-active" data-scale="1.5" role="radio" aria-checked="true">1.5× Balanced</button>
-                    <button class="pt-chip" data-scale="2"   role="radio" aria-checked="false">2× High</button>
-                    <button class="pt-chip" data-scale="3"   role="radio" aria-checked="false">3× Print</button>
+                <div class="pt-quality-row">
+                    <div class="pt-chip-group" id="pt-quality-chips" role="radiogroup" aria-label="Select output quality scale">
+                        <button class="pt-chip" data-scale="1"   role="radio" aria-checked="false">1× Web</button>
+                        <button class="pt-chip is-active" data-scale="1.5" role="radio" aria-checked="true">1.5× Balanced</button>
+                        <button class="pt-chip" data-scale="2"   role="radio" aria-checked="false">2× High</button>
+                        <button class="pt-chip" data-scale="3"   role="radio" aria-checked="false">3× Print</button>
+                    </div>
+                    <input type="number" id="pt-custom-dpi" class="pt-input pt-input--dpi" placeholder="Custom DPI (e.g. 300)" min="72" max="1200" aria-label="Custom DPI">
                 </div>
-                <button class="pt-action-btn" id="pt-convert-btn-1" aria-label="Render PDF pages to PNG images">
+                <button class="pt-action-btn" id="pt-convert-btn-1" aria-label="Render PDF pages to PNG Images">
                     Render PDF to PNG Images
                 </button>
             </div>
@@ -189,10 +192,12 @@
                 <div class="pt-progress-text" id="pt-progress-text-3">Reading document structure…</div>
             </div>
 
-            <!-- Grid wrapper -->
             <div id="pt-grid-wrapper-3" style="display:none">
                 <div class="pt-grid-header">
-                    <div class="pt-section-label">Document Pages</div>
+                    <div class="pt-section-label">
+                        Document Pages
+                        <span id="pt-badge-3" class="pt-preview-badge"></span>
+                    </div>
                     <div class="pt-grid-actions">
                         <button class="pt-ghost-btn" id="pt-select-all-3">Select All</button>
                         <button class="pt-ghost-btn" id="pt-deselect-all-3">Deselect All</button>

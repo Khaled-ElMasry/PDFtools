@@ -184,7 +184,26 @@ body {
     margin-bottom: 14px;
 }
 
-/* ── Chip Groups ────────────────────────────────────────────────── */
+/* ── Chip Groups & Quality Row ──────────────────────────────────── */
+.pt-quality-row {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.pt-quality-row .pt-chip-group {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 260px;
+}
+
+.pt-input--dpi {
+    width: 140px;
+    margin-bottom: 0;
+}
+
 .pt-chip-group {
     display: flex;
     gap: 8px;

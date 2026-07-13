@@ -470,7 +470,12 @@ function initTab1() {
 
                 try {
                     const page     = await pdf.getPage(i);
-                    const viewport = page.getViewport({ scale: selectedScale });
+                    let finalScale = selectedScale;
+                    const dpiVal   = document.getElementById('pt-custom-dpi').value;
+                    if (dpiVal && !isNaN(dpiVal)) {
+                        finalScale = parseFloat(dpiVal) / 72;
+                    }
+                    const viewport = page.getViewport({ scale: finalScale });
                     sharedCanvas.width  = viewport.width;
                     sharedCanvas.height = viewport.height;
                     await page.render({ canvasContext: sharedCtx, viewport }).promise;
@@ -498,7 +503,10 @@ function initTab1() {
                         </div>
                         <div class="pt-card-footer">
                             <span class="pt-card-label" id="pt-lbl-1-${i}">Page ${i}</span>
-                            <a href="${imgUrl}" download="${dlName}" class="pt-card-dl" id="pt-dl-1-${i}">↓ PNG</a>
+                            <div style="display:flex;gap:4px;">
+                                <a href="${imgUrl}" download="${dlName}" class="pt-card-dl" id="pt-dl-1-${i}">↓ PNG</a>
+                                <button class="pt-card-dl pt-card-dl--pdf" style="border:none;background:var(--surface-1);cursor:pointer;font:inherit;" id="pt-dlpdf-1-${i}" aria-label="Download page ${i} as PDF">↓ PDF</button>
+                            </div>
                         </div>
                     `;
 
@@ -507,6 +515,31 @@ function initTab1() {
                         e.stopPropagation();
                         const excluded = card.dataset.removed === 'true';
                         setCardExcluded(card, !excluded);
+                    });
+
+                    const pdfBtn = card.querySelector('.pt-card-dl--pdf');
+                    pdfBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        pdfBtn.textContent = '...';
+                        try {
+                            const { PDFDocument } = window.PDFLib;
+                            const ab = await currentFile.arrayBuffer();
+                            const srcDoc = await PDFDocument.load(ab);
+                            const newDoc = await PDFDocument.create();
+                            const [copiedPage] = await newDoc.copyPages(srcDoc, [i - 1]);
+                            newDoc.addPage(copiedPage);
+                            const pdfBytes = await newDoc.save();
+                            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = currentFile.name.replace(/\.[^/.]+$/, '') + `_page_${i}.pdf`;
+                            a.click();
+                            setTimeout(() => URL.revokeObjectURL(url), 6000);
+                        } catch (err) {
+                            showToast('PDF Export failed: ' + err.message, 'error');
+                        }
+                        pdfBtn.textContent = '↓ PDF';
                     });
 
                     grid.appendChild(card);
@@ -895,6 +928,8 @@ function initTab3() {
         sourceFile = null; sourcePdfBytes = null;
         replaceMap = {}; removeSet = new Set();
         grid.innerHTML = '';
+        const badge = document.getElementById('pt-badge-3');
+        if (badge) badge.textContent = '';
         gridWrap.style.display = 'none';
         progressEl.style.display = 'none';
         saveBtn.style.display = 'none';
@@ -940,6 +975,8 @@ function initTab3() {
             }
 
             const pageCount = pdf.numPages;
+            const badge = document.getElementById('pt-badge-3');
+            if (badge) badge.textContent = `(${pageCount} pages)`;
             gridWrap.style.display = 'block';
 
             const sharedCanvas = document.createElement('canvas');
@@ -1001,7 +1038,7 @@ function initTab3() {
                     });
 
                     // Replace page
-                    document.getElementById(`pt-rep3-${i}`).addEventListener('click', () => {
+                    card.querySelector(`#pt-rep3-${i}`).addEventListener('click', () => {
                         const fi = document.createElement('input');
                         fi.type = 'file';
                         fi.accept = 'image/png,image/jpeg,image/jpg,image/webp';
@@ -1019,7 +1056,7 @@ function initTab3() {
                     });
 
                     // Download page (HD render)
-                    document.getElementById(`pt-dl3-${i}`).addEventListener('click', async () => {
+                    card.querySelector(`#pt-dl3-${i}`).addEventListener('click', async () => {
                         // If replaced, download the replacement image
                         if (replaceMap[i]) {
                             const a = document.createElement('a');
